@@ -5,6 +5,9 @@ package com.uramonk.toiletune.domain.repository
  */
 interface MediaRepository {
     val size: Int
+    val randomWeightSum: Int
+    val mediaSourceWeightList: List<Int>
+
+    fun getMediaResourceWeight(index: Int): Int
     fun getMediaResource(index: Int): Int
-    fun getRandomMediaReource(): Int
 }

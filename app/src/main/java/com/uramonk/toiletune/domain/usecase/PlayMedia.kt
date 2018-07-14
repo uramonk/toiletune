@@ -5,6 +5,7 @@ import com.uramonk.toiletune.domain.repository.MediaRepository
 import com.uramonk.toiletune.domain.repository.PlayerRepository
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
+import java.util.*
 
 /**
  * Created by uramonk on 2018/07/14.
@@ -23,10 +24,23 @@ class PlayMedia(
 
     override fun onNext(t: Boolean) {
         if (t) {
-            playerRepository.setDataSource(mediaRepository.getRandomMediaReource())
+            playerRepository.setDataSource(getRandomMediaResource())
             playerRepository.start()
         } else {
             playerRepository.stop()
         }
+    }
+
+    private fun getRandomMediaResource(): Int {
+        val max = mediaRepository.randomWeightSum
+        val randomIndex = Random().nextInt(max) + 1
+        var sum = 0
+        mediaRepository.mediaSourceWeightList.forEachIndexed { index, i ->
+            if (randomIndex > sum && randomIndex <= sum + i) {
+                return mediaRepository.getMediaResource(index)
+            }
+            sum += i
+        }
+        return mediaRepository.getMediaResource(0)
     }
 }
