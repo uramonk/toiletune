@@ -58,7 +58,7 @@ class MainActivityViewModel(
 
     private fun createRepository() {
         // Player
-        val mediaResource = activity.resources.getIdentifier("healing2", "raw",
+        val mediaResource = activity.resources.getIdentifier("default_bgm", "raw",
                 activity.packageName)
         mediaPlayer = MediaPlayer.create(activity, mediaResource)
         mediaPlayer.isLooping = true
