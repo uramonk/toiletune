@@ -8,4 +8,5 @@ import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
 class MainActivityViewModel(
         private val activity: RxAppCompatActivity
 ): BaseViewModel(activity) {
+
 }
