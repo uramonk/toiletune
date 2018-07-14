@@ -1,6 +1,7 @@
 package com.uramonk.toiletune.domain.usecase
 
 import com.uramonk.toiletune.domain.repository.LightSensorRepository
+import com.uramonk.toiletune.domain.repository.MediaRepository
 import com.uramonk.toiletune.domain.repository.PlayerRepository
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
@@ -10,7 +11,8 @@ import io.reactivex.Observable
  */
 class PlayMedia(
         private val sensorRepository: LightSensorRepository,
-        private val playerRepository: PlayerRepository
+        private val playerRepository: PlayerRepository,
+        private val mediaRepository: MediaRepository
 ) : DefaultObservableUseCase<Boolean>() {
     override val observable: Observable<Boolean>
         get() = sensorRepository.onSensorChanged
@@ -21,6 +23,7 @@ class PlayMedia(
 
     override fun onNext(t: Boolean) {
         if (t) {
+            playerRepository.setDataSource(mediaRepository.getRandomMediaReource())
             playerRepository.start()
         } else {
             playerRepository.stop()
