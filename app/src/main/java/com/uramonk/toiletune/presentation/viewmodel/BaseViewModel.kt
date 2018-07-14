@@ -5,7 +5,7 @@ import android.app.Fragment
 import android.support.annotation.CallSuper
 import com.trello.rxlifecycle2.android.ActivityEvent
 import com.trello.rxlifecycle2.android.FragmentEvent
-import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
+import com.trello.rxlifecycle2.components.RxActivity
 import com.trello.rxlifecycle2.components.support.RxFragment
 
 /**
@@ -13,15 +13,16 @@ import com.trello.rxlifecycle2.components.support.RxFragment
  */
 open class BaseViewModel {
 
-    constructor(activity: RxAppCompatActivity) {
+    constructor(activity: RxActivity) {
         subscribeActivityLifecycle(activity, ActivityEvent.DESTROY)
     }
 
-    constructor(activity: RxAppCompatActivity, activityEvent: ActivityEvent) {
+    constructor(activity: RxActivity, activityEvent: ActivityEvent) {
         subscribeActivityLifecycle(activity, activityEvent)
     }
 
-    private fun subscribeActivityLifecycle(activity: RxAppCompatActivity, activityEvent: ActivityEvent) {
+    private fun subscribeActivityLifecycle(activity: RxActivity,
+            activityEvent: ActivityEvent) {
         activity.lifecycle()
                 .compose(activity.bindUntilEvent<ActivityEvent?>(activityEvent))
                 .subscribe {

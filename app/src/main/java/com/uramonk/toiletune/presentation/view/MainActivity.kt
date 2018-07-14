@@ -2,12 +2,12 @@ package com.uramonk.toiletune.presentation.view
 
 import android.databinding.DataBindingUtil
 import android.os.Bundle
-import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
+import com.trello.rxlifecycle2.components.RxActivity
 import com.uramonk.toiletune.R
 import com.uramonk.toiletune.databinding.ActivityMainBinding
 import com.uramonk.toiletune.presentation.viewmodel.MainActivityViewModel
 
-class MainActivity : RxAppCompatActivity() {
+class MainActivity : RxActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val binding = DataBindingUtil.setContentView<ActivityMainBinding>(this,

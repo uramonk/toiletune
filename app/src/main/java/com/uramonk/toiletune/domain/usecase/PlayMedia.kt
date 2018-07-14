@@ -16,7 +16,7 @@ class PlayMedia(
         get() = sensorRepository.onSensorChanged
                 .toFlowable(BackpressureStrategy.DROP)
                 .toObservable()
-                .map { it > 100f }
+                .map { it > 10f }
                 .distinctUntilChanged()
 
     override fun onNext(t: Boolean) {

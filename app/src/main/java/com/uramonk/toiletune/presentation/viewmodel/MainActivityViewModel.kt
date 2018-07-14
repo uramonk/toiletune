@@ -3,8 +3,10 @@ package com.uramonk.toiletune.presentation.viewmodel
 import android.content.Context.SENSOR_SERVICE
 import android.hardware.SensorManager
 import android.media.MediaPlayer
+import android.view.View
+import android.view.WindowManager
 import com.trello.rxlifecycle2.android.ActivityEvent
-import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
+import com.trello.rxlifecycle2.components.RxActivity
 import com.uramonk.toiletune.data.repository.LightSensorDataRepository
 import com.uramonk.toiletune.data.repository.PlayerDataRepository
 import com.uramonk.toiletune.domain.repository.LightSensorRepository
@@ -18,7 +20,7 @@ import io.reactivex.schedulers.Schedulers
  * Created by uramonk on 2018/07/14.
  */
 class MainActivityViewModel(
-        private val activity: RxAppCompatActivity
+        private val activity: RxActivity
 ) : BaseViewModel(activity) {
 
     /**
@@ -50,6 +52,8 @@ class MainActivityViewModel(
 
         lightSensorRepository.stop()
         playerRepository.stop()
+
+        activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     private fun createRepository() {
@@ -65,6 +69,12 @@ class MainActivityViewModel(
         lightSensorRepository = LightSensorDataRepository(
                 activity.getSystemService(SENSOR_SERVICE) as SensorManager)
         lightSensorRepository.start()
+
+        activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        activity.window
+                .decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
     }
 
     private fun createUseCase() {
