@@ -13,7 +13,7 @@ import io.reactivex.subjects.PublishSubject
  */
 class LightSensorDataRepository(
         private val sensorManager: SensorManager
-): LightSensorRepository, SensorEventListener {
+) : LightSensorRepository, SensorEventListener {
 
     private val sensorChangedSubject = PublishSubject.create<Float>()
     override val onSensorChanged: Observable<Float>
@@ -21,7 +21,7 @@ class LightSensorDataRepository(
 
     override fun start() {
         val sensors = sensorManager.getSensorList(Sensor.TYPE_LIGHT)
-        if(sensors.size > 0) {
+        if (sensors.size > 0) {
             val sensor = sensors.get(0)
             sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI)
         }
@@ -36,7 +36,7 @@ class LightSensorDataRepository(
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        if(event?.sensor?.type == Sensor.TYPE_LIGHT) {
+        if (event?.sensor?.type == Sensor.TYPE_LIGHT) {
             sensorChangedSubject.onNext(event.values[0])
         }
     }
