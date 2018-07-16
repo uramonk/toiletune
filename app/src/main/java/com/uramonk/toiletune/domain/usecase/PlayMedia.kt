@@ -5,6 +5,7 @@ import com.uramonk.toiletune.domain.repository.MediaRepository
 import com.uramonk.toiletune.domain.repository.PlayerRepository
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
+import org.threeten.bp.LocalTime
 import java.util.*
 
 /**
@@ -19,7 +20,12 @@ class PlayMedia(
         get() = sensorRepository.onSensorChanged
                 .toFlowable(BackpressureStrategy.DROP)
                 .toObservable()
-                .map { it > 10f }
+                .map { Pair(it, LocalTime.now()) }
+                .filter {
+                    it.second.isAfter(LocalTime.of(8, 0)) && it.second.isBefore(
+                            LocalTime.of(23, 0))
+                }
+                .map { it.first > 10f }
                 .distinctUntilChanged()
 
     override fun onNext(t: Boolean) {
