@@ -5,5 +5,5 @@
 トイレにアプリをインストールした端末を設置しアプリを起動しておき、明かりをつけるたびに音がなり、明かりを消すと音が止まります。
 
 ## 使い方
-res/rawフォルダに `default_bgm` と `second_bgm` という名前で音源ファイルを設置しビルドしてください。
-`default_bgm` は49/50の確率で、`second_bgm` は1/50の確率で再生されます。
+res/rawフォルダに音源ファイルを設置しビルドしてください。
+音源ファイル名や再生確率は `presentation.viewmodel/MainActivityViewModel` 内の `createRepository()` を参照してください。

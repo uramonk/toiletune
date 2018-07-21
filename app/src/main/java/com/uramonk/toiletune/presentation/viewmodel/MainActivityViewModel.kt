@@ -56,10 +56,17 @@ class MainActivityViewModel(
     private fun createRepository() {
         // Media
         val mediaList = listOf(
-                Pair(activity.resources.getIdentifier("default_bgm", "raw",
-                        activity.packageName), 49),
-                Pair(activity.resources.getIdentifier("second_bgm", "raw",
-                        activity.packageName), 1)
+                Pair(activity.resources.getIdentifier("a", "raw",
+                        activity.packageName), 50),
+                Pair(activity.resources.getIdentifier("b", "raw",
+                        activity.packageName), 1),
+                Pair(activity.resources.getIdentifier("c", "raw",
+                        activity.packageName), 20),
+                Pair(activity.resources.getIdentifier("d", "raw",
+                        activity.packageName), 90),
+                Pair(activity.resources.getIdentifier("e", "raw",
+                        activity.packageName), 40)
+
         )
         mediaRepository = MediaDataRepository(mediaList)
 
