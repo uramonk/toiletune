@@ -1,5 +1,6 @@
 package com.uramonk.toiletune.domain.usecase
 
+import com.uramonk.toiletune.Constants
 import com.uramonk.toiletune.domain.repository.LightSensorRepository
 import com.uramonk.toiletune.domain.repository.MediaRepository
 import com.uramonk.toiletune.domain.repository.PlayerRepository
@@ -15,26 +16,24 @@ class PlayMedia(
         private val sensorRepository: LightSensorRepository,
         private val playerRepository: PlayerRepository,
         private val mediaRepository: MediaRepository
-) : DefaultObservableUseCase<Boolean>() {
-    override val observable: Observable<Boolean>
+) : DefaultObservableUseCase<Unit>() {
+    override val observable: Observable<Unit>
         get() = sensorRepository.onSensorChanged
                 .toFlowable(BackpressureStrategy.DROP)
                 .toObservable()
-                .map { Pair(it, LocalTime.now()) }
+                .map { it > Constants.LIGHT_SENSOR_THRESHOLD }
+                .distinctUntilChanged()
+                .filter { it }
+                .map { LocalTime.now() }
                 .filter {
-                    it.second.isAfter(LocalTime.of(8, 0)) && it.second.isBefore(
+                    it.isAfter(LocalTime.of(8, 0)) && it.isBefore(
                             LocalTime.of(23, 0))
                 }
-                .map { it.first > 10f }
-                .distinctUntilChanged()
+                .map { Unit }
 
-    override fun onNext(t: Boolean) {
-        if (t) {
-            playerRepository.setDataSource(getRandomMediaResource())
-            playerRepository.start()
-        } else {
-            playerRepository.stop()
-        }
+    override fun onNext(t: Unit) {
+        playerRepository.setDataSource(getRandomMediaResource())
+        playerRepository.start()
     }
 
     private fun getRandomMediaResource(): Int {

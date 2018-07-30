@@ -13,6 +13,7 @@ import com.uramonk.toiletune.domain.repository.LightSensorRepository
 import com.uramonk.toiletune.domain.repository.MediaRepository
 import com.uramonk.toiletune.domain.repository.PlayerRepository
 import com.uramonk.toiletune.domain.usecase.PlayMedia
+import com.uramonk.toiletune.domain.usecase.StopMedia
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
@@ -35,6 +36,7 @@ class MainActivityViewModel(
      * UseCase
      */
     private lateinit var playMedia: PlayMedia
+    private lateinit var stopMedia: StopMedia
 
     override fun onStart() {
         super.onStart()
@@ -87,10 +89,13 @@ class MainActivityViewModel(
 
     private fun createUseCase() {
         playMedia = PlayMedia(lightSensorRepository, playerRepository, mediaRepository)
+        stopMedia = StopMedia(lightSensorRepository, playerRepository)
     }
 
     private fun executeUseCase() {
         playMedia.execute(Schedulers.newThread(), AndroidSchedulers.mainThread(),
+                activity.bindUntilEvent(ActivityEvent.STOP))
+        stopMedia.execute(Schedulers.newThread(), AndroidSchedulers.mainThread(),
                 activity.bindUntilEvent(ActivityEvent.STOP))
     }
 }
