@@ -8,6 +8,8 @@ import io.reactivex.Observable
 
 /**
  * Created by uramonk on 2018/07/30.
+ *
+ * 暗くなった時に音楽を停止するUseCase.
  */
 class StopMedia(
         private val sensorRepository: LightSensorRepository,
@@ -17,12 +19,14 @@ class StopMedia(
         get() = sensorRepository.onSensorChanged
                 .toFlowable(BackpressureStrategy.DROP)
                 .toObservable()
+                // 明るい状態（しきい値を超える）から暗い状態（しきい値以下）になった場合のみ通過する。
                 .map { it <= Constants.LIGHT_SENSOR_THRESHOLD }
                 .distinctUntilChanged()
                 .filter { it }
                 .map { Unit }
 
     override fun onNext(t: Unit) {
+        // 音楽を停止する。
         playerRepository.stop()
     }
 }

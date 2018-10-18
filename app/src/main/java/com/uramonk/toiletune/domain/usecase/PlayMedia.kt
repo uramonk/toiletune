@@ -11,6 +11,8 @@ import java.util.*
 
 /**
  * Created by uramonk on 2018/07/14.
+ *
+ * 特定時間帯に明るくなった時に音楽を再生するUseCase.
  */
 class PlayMedia(
         private val sensorRepository: LightSensorRepository,
@@ -21,9 +23,11 @@ class PlayMedia(
         get() = sensorRepository.onSensorChanged
                 .toFlowable(BackpressureStrategy.DROP)
                 .toObservable()
+                // 暗い状態（しきい値以下）から明るい状態（しきい値を超える）になった場合のみ通過する。
                 .map { it > Constants.LIGHT_SENSOR_THRESHOLD }
                 .distinctUntilChanged()
                 .filter { it }
+                // 特定時間帯のみ通過する。
                 .map { LocalTime.now() }
                 .filter {
                     it.isAfter(LocalTime.of(8, 0)) && it.isBefore(
@@ -32,6 +36,7 @@ class PlayMedia(
                 .map { Unit }
 
     override fun onNext(t: Unit) {
+        // ランダムに音楽を取得して再生する。
         playerRepository.setDataSource(getRandomMediaResource())
         playerRepository.start()
     }
