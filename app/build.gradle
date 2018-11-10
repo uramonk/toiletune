@@ -50,5 +50,6 @@ dependencies {
 
     // firebase
     implementation 'com.google.firebase:firebase-core:16.0.5'
+    implementation 'com.google.firebase:firebase-config:16.1.0'
     apply plugin: 'com.google.gms.google-services'
 }

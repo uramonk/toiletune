@@ -1,6 +1,6 @@
 package com.uramonk.toiletune.domain.usecase
 
-import com.uramonk.toiletune.Constants
+import com.uramonk.toiletune.domain.repository.ConfigRepository
 import com.uramonk.toiletune.domain.repository.LightSensorRepository
 import com.uramonk.toiletune.domain.repository.MediaRepository
 import com.uramonk.toiletune.domain.repository.PlayerRepository
@@ -17,14 +17,15 @@ import java.util.*
 class PlayMedia(
         private val sensorRepository: LightSensorRepository,
         private val playerRepository: PlayerRepository,
-        private val mediaRepository: MediaRepository
+        private val mediaRepository: MediaRepository,
+        private val configRepository: ConfigRepository
 ) : DefaultObservableUseCase<Unit>() {
     override val observable: Observable<Unit>
         get() = sensorRepository.onSensorChanged
                 .toFlowable(BackpressureStrategy.DROP)
                 .toObservable()
                 // 暗い状態（しきい値以下）から明るい状態（しきい値を超える）になった場合のみ通過する。
-                .map { it > Constants.LIGHT_SENSOR_THRESHOLD }
+                .map { it > configRepository.lightSensorThreshold }
                 .distinctUntilChanged()
                 .filter { it }
                 // 特定時間帯のみ通過する。
