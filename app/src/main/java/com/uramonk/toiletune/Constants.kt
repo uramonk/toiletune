@@ -5,6 +5,6 @@ package com.uramonk.toiletune
  */
 class Constants {
     companion object {
-        const val LIGHT_SENSOR_THRESHOLD: Float = 10f
+        const val LIGHT_SENSOR_THRESHOLD: Float = 9f
     }
 }
