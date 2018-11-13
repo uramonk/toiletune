@@ -1,7 +1,11 @@
 package com.uramonk.toiletune.presentation.viewmodel
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context.SENSOR_SERVICE
+import android.content.IntentFilter
 import android.hardware.SensorManager
+import android.os.Build
 import android.view.View
 import android.view.WindowManager
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -10,19 +14,18 @@ import com.trello.rxlifecycle2.android.ActivityEvent
 import com.trello.rxlifecycle2.components.RxActivity
 import com.uramonk.toiletune.BuildConfig
 import com.uramonk.toiletune.R
+import com.uramonk.toiletune.UpdateReceiver
 import com.uramonk.toiletune.data.repository.ConfigDataRepository
 import com.uramonk.toiletune.data.repository.LightSensorDataRepository
 import com.uramonk.toiletune.data.repository.MediaDataRepository
 import com.uramonk.toiletune.data.repository.PlayerDataRepository
-import com.uramonk.toiletune.domain.repository.ConfigRepository
-import com.uramonk.toiletune.domain.repository.LightSensorRepository
-import com.uramonk.toiletune.domain.repository.MediaRepository
-import com.uramonk.toiletune.domain.repository.PlayerRepository
+import com.uramonk.toiletune.domain.repository.*
 import com.uramonk.toiletune.domain.usecase.FetchConfig
 import com.uramonk.toiletune.domain.usecase.PlayMedia
 import com.uramonk.toiletune.domain.usecase.StopMedia
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+
 
 /**
  * Created by uramonk on 2018/07/14.
@@ -42,6 +45,7 @@ class MainActivityViewModel(
     private lateinit var playerRepository: PlayerRepository
     private lateinit var mediaRepository: MediaRepository
     private lateinit var configRepository: ConfigRepository
+    private lateinit var notificationRepository: NotificationRepository
 
     /**
      * UseCase
@@ -58,6 +62,7 @@ class MainActivityViewModel(
     override fun onStart() {
         super.onStart()
 
+        createReceiver()
         createRepository()
         createUseCase()
         executeUseCase()
@@ -68,8 +73,9 @@ class MainActivityViewModel(
 
         lightSensorRepository.stop()
         playerRepository.stop()
+        activity.unregisterReceiver(notificationRepository as UpdateReceiver)
 
-        activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
     private fun initFirebase() {
@@ -80,6 +86,23 @@ class MainActivityViewModel(
                 .build()
         remoteConfig.setConfigSettings(configSettings)
         remoteConfig.setDefaults(R.xml.remote_config_defaults)
+
+        // Cloud Messaging
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create channel to show notifications.
+            val channelId = activity.getString(R.string.default_notification_channel_id)
+            val channelName = activity.getString(R.string.default_notification_channel_name)
+            val notificationManager = activity.getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(NotificationChannel(channelId,
+                    channelName, NotificationManager.IMPORTANCE_LOW))
+        }
+    }
+
+    private fun createReceiver() {
+        notificationRepository = UpdateReceiver()
+        val filter = IntentFilter()
+        filter.addAction("PUSH_RC_ACTION")
+        activity.registerReceiver(notificationRepository as UpdateReceiver, filter)
     }
 
     private fun createRepository() {
@@ -119,7 +142,7 @@ class MainActivityViewModel(
     }
 
     private fun createUseCase() {
-        fetchConfig = FetchConfig(configRepository)
+        fetchConfig = FetchConfig(configRepository, notificationRepository)
         playMedia = PlayMedia(lightSensorRepository, playerRepository, mediaRepository,
                 configRepository)
         stopMedia = StopMedia(lightSensorRepository, playerRepository, configRepository)
