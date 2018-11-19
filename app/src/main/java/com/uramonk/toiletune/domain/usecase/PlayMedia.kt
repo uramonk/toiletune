@@ -31,8 +31,8 @@ class PlayMedia(
                 // 特定時間帯のみ通過する。
                 .map { LocalTime.now() }
                 .filter {
-                    it.isAfter(LocalTime.of(8, 0)) && it.isBefore(
-                            LocalTime.of(23, 0))
+                    it.isAfter(configRepository.playTime.startTime) && it.isBefore(
+                            configRepository.playTime.stopTime)
                 }
                 .map { Unit }
 

@@ -16,7 +16,7 @@ class ConfigDataRepository(
     override val lightSensorThreshold: Float
         get() = remoteConfig.getDouble(Constants.LIGHT_SENSOR_THRESHOLD_KEY).toFloat()
 
-    override val playTIme: PlayTime
+    override val playTime: PlayTime
         get() = PlayTime.from(remoteConfig.getString(Constants.PLAY_TIME))
 
     override fun fetchConfig(): Observable<Boolean> {
@@ -28,7 +28,7 @@ class ConfigDataRepository(
         }
 
         Timber.d("(Current) light sensor threshold: %s", lightSensorThreshold)
-        Timber.d("(Current) play time: %s", playTIme)
+        Timber.d("(Current) play time: %s", playTime)
 
         return Observable.create { emitter ->
             remoteConfig.fetch(cacheExpiration)
@@ -38,7 +38,7 @@ class ConfigDataRepository(
                         }
 
                         Timber.d("(Fetched) light sensor threshold: %s", lightSensorThreshold)
-                        Timber.d("(Fetched) play time: %s", playTIme)
+                        Timber.d("(Fetched) play time: %s", playTime)
 
                         emitter.onNext(it.isSuccessful)
                     }

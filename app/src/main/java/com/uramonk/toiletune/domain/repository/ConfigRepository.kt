@@ -8,6 +8,6 @@ import io.reactivex.Observable
  */
 interface ConfigRepository {
     val lightSensorThreshold: Float
-    val playTIme: PlayTime
+    val playTime: PlayTime
     fun fetchConfig(): Observable<Boolean>
 }
