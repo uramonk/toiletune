@@ -1,5 +1,6 @@
 package com.uramonk.toiletune.domain.repository
 
+import com.uramonk.toiletune.domain.model.PlayTime
 import io.reactivex.Observable
 
 /**
@@ -7,5 +8,6 @@ import io.reactivex.Observable
  */
 interface ConfigRepository {
     val lightSensorThreshold: Float
-    fun fetchLightSensorThreshold(): Observable<Float>
+    val playTIme: PlayTime
+    fun fetchConfig(): Observable<Boolean>
 }

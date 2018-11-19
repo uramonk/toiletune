@@ -6,5 +6,6 @@ package com.uramonk.toiletune
 class Constants {
     companion object {
         const val LIGHT_SENSOR_THRESHOLD_KEY = "light_sensor_threshold"
+        const val PLAY_TIME = "play_time"
     }
 }

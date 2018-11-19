@@ -10,13 +10,13 @@ import io.reactivex.Observable
 class FetchConfig(
         private val configRepository: ConfigRepository,
         private val notificationRepository: NotificationRepository
-) : DefaultObservableUseCase<Float>() {
-    override val observable: Observable<Float>
-        get() = Observable.merge(configRepository.fetchLightSensorThreshold(),
+) : DefaultObservableUseCase<Boolean>() {
+    override val observable: Observable<Boolean>
+        get() = Observable.merge(configRepository.fetchConfig(),
                 notificationRepository.onNotified.flatMap
-                { configRepository.fetchLightSensorThreshold() })
+                { configRepository.fetchConfig() })
 
-    override fun onNext(t: Float) {
+    override fun onNext(t: Boolean) {
         // do nothing.
     }
 }
