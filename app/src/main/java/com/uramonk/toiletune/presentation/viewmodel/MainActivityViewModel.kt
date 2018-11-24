@@ -15,10 +15,7 @@ import com.trello.rxlifecycle2.components.RxActivity
 import com.uramonk.toiletune.BuildConfig
 import com.uramonk.toiletune.R
 import com.uramonk.toiletune.UpdateReceiver
-import com.uramonk.toiletune.data.repository.ConfigDataRepository
-import com.uramonk.toiletune.data.repository.LightSensorDataRepository
-import com.uramonk.toiletune.data.repository.MediaDataRepository
-import com.uramonk.toiletune.data.repository.PlayerDataRepository
+import com.uramonk.toiletune.data.repository.*
 import com.uramonk.toiletune.domain.repository.*
 import com.uramonk.toiletune.domain.usecase.FetchConfig
 import com.uramonk.toiletune.domain.usecase.PlayMedia
@@ -46,6 +43,7 @@ class MainActivityViewModel(
     private lateinit var mediaRepository: MediaRepository
     private lateinit var configRepository: ConfigRepository
     private lateinit var notificationRepository: NotificationRepository
+    private lateinit var authoRepository: AuthRepository
 
     /**
      * UseCase
@@ -66,6 +64,8 @@ class MainActivityViewModel(
         createRepository()
         createUseCase()
         executeUseCase()
+
+        authoRepository.showLogin()
     }
 
     override fun onStop() {
@@ -133,6 +133,8 @@ class MainActivityViewModel(
         lightSensorRepository = LightSensorDataRepository(
                 activity.getSystemService(SENSOR_SERVICE) as SensorManager)
         lightSensorRepository.start()
+
+        authoRepository = AuthDataRepository(activity)
 
         activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         activity.window
