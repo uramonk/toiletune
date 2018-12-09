@@ -6,5 +6,5 @@ package com.uramonk.toiletune.domain.repository
 interface PlayerRepository {
     fun start()
     fun stop()
-    fun setDataSource(dataSource: Int)
+    fun setDataSource(dataSource: String)
 }

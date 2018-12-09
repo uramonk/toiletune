@@ -28,6 +28,8 @@ class PlayMedia(
                 .map { it > configRepository.lightSensorThreshold }
                 .distinctUntilChanged()
                 .filter { it }
+                // 再生mediaが無い場合は再生しない
+                .filter { mediaRepository.mediaList.isNotEmpty() }
                 // 特定時間帯のみ通過する。
                 .map { LocalTime.now() }
                 .filter {
@@ -42,7 +44,7 @@ class PlayMedia(
         playerRepository.start()
     }
 
-    private fun getRandomMediaResource(): Int {
+    private fun getRandomMediaResource(): String {
         val max = mediaRepository.randomWeightSum
         val randomIndex = Random().nextInt(max) + 1
         var sum = 0

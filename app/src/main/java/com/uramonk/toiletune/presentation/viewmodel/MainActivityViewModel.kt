@@ -127,21 +127,7 @@ class MainActivityViewModel(
         configRepository = ConfigDataRepository(remoteConfig)
 
         // Media
-        val mediaList = listOf(
-                Pair(activity.resources.getIdentifier("a", "raw",
-                        activity.packageName), 50),
-                Pair(activity.resources.getIdentifier("b", "raw",
-                        activity.packageName), 2),
-                Pair(activity.resources.getIdentifier("c", "raw",
-                        activity.packageName), 20),
-                Pair(activity.resources.getIdentifier("d", "raw",
-                        activity.packageName), 90),
-                Pair(activity.resources.getIdentifier("e", "raw",
-                        activity.packageName), 40),
-                Pair(activity.resources.getIdentifier("f", "raw",
-                        activity.packageName), 20)
-        )
-        mediaRepository = MediaDataRepository(mediaList)
+        mediaRepository = MediaDataRepository()
 
         // Player
         playerRepository = PlayerDataRepository(activity)
@@ -168,7 +154,7 @@ class MainActivityViewModel(
                 configRepository)
         stopMedia = StopMedia(lightSensorRepository, playerRepository, configRepository)
         fetchmediaPath = FetchMediaPath(databaseRepository)
-        downloadMedia = DownloadMedia(databaseRepository, storageRepository)
+        downloadMedia = DownloadMedia(databaseRepository, storageRepository, mediaRepository)
     }
 
     private fun executeUseCase() {

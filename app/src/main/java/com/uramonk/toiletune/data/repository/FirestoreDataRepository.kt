@@ -29,7 +29,8 @@ class FirestoreDataRepository(
                             document.data?.let { data ->
                                 val list = (data["list"] as List<*>).map { it -> it as Map<*, *> }
                                         .map {
-                                            MediaInfo(it["file"] as String, it["weight"] as Long)
+                                            MediaInfo(it["file"] as String,
+                                                    (it["weight"] as Long).toInt())
                                         }.toList()
                                 emitter.onNext(list)
                                 subject.onNext(list)

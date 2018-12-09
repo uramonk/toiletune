@@ -3,6 +3,9 @@ package com.uramonk.toiletune.data.repository
 import android.content.Context
 import android.media.MediaPlayer
 import com.uramonk.toiletune.domain.repository.PlayerRepository
+import java.io.File
+import java.io.FileInputStream
+import java.io.IOException
 
 /**
  * Created by uramonk on 2018/07/14.
@@ -21,11 +24,35 @@ class PlayerDataRepository(
         mediaPlayer?.pause()
     }
 
-    override fun setDataSource(dataSource: Int) {
+    override fun setDataSource(dataSource: String) {
         mediaPlayer?.stop()
         mediaPlayer?.release()
         mediaPlayer = null
-        mediaPlayer = MediaPlayer.create(context, dataSource)
+        mediaPlayer = MediaPlayer()
+
+        var fis: FileInputStream? = null
+        try {
+            // 再生ファイルをセット
+            fis = FileInputStream(File(dataSource))
+            val fd = fis.fd
+            mediaPlayer?.setDataSource(fd)
+            mediaPlayer?.prepare() // 再生準備
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
+        } catch (e: IllegalStateException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
+        }
+
         setSetting()
     }
 

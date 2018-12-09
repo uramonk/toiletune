@@ -5,5 +5,5 @@ package com.uramonk.toiletune.domain.model
  */
 data class MediaInfo(
         val path: String,
-        val weight: Long
+        val weight: Int
 )
