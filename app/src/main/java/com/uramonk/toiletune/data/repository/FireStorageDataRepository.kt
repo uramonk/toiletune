@@ -2,6 +2,7 @@ package com.uramonk.toiletune.data.repository
 
 import android.content.Context
 import com.google.firebase.storage.FirebaseStorage
+import com.uramonk.toiletune.domain.model.MediaInfo
 import com.uramonk.toiletune.domain.repository.StorageRepository
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -16,11 +17,11 @@ class FireStorageDataRepository(
         private val storage: FirebaseStorage,
         private val context: Context
 ) : StorageRepository {
-    private val subject = PublishSubject.create<List<String>>()
-    override val onDownloaded: Observable<List<String>>
+    private val subject = PublishSubject.create<List<MediaInfo>>()
+    override val onDownloaded: Observable<List<MediaInfo>>
         get() = subject.hide().share()
 
-    override fun downloads(list: List<String>): Observable<List<String>> {
+    override fun downloads(list: List<MediaInfo>): Observable<List<MediaInfo>> {
         return Observable.fromIterable(list)
                 .concatMap { download(it) }
                 .toList()
@@ -29,15 +30,15 @@ class FireStorageDataRepository(
                 .doOnComplete { subject.onComplete() }
     }
 
-    override fun download(path: String): Observable<String> {
-        return Observable.create<String> { emitter ->
-            val gsReference = storage.getReferenceFromUrl(path)
-            val file = File(context.filesDir.path + "/" + File(path).name)
+    override fun download(info: MediaInfo): Observable<MediaInfo> {
+        return Observable.create<MediaInfo> { emitter ->
+            val gsReference = storage.getReferenceFromUrl(info.path)
+            val file = File(context.filesDir.path + "/" + File(info.path).name)
             Timber.d(file.absolutePath)
             gsReference.getFile(file).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Timber.d("Download completed.")
-                    emitter.onNext(file.absolutePath)
+                    emitter.onNext(MediaInfo(file.absolutePath, info.weight))
                     emitter.onComplete()
                 } else {
                     Timber.e(task.exception, "Download failed.")
