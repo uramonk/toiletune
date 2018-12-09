@@ -41,6 +41,7 @@ class ConfigDataRepository(
                         Timber.d("(Fetched) play time: %s", playTime)
 
                         emitter.onNext(it.isSuccessful)
+                        emitter.onComplete()
                     }
         }
     }

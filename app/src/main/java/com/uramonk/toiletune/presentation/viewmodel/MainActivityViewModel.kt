@@ -8,8 +8,11 @@ import android.hardware.SensorManager
 import android.os.Build
 import android.view.View
 import android.view.WindowManager
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
+import com.google.firebase.storage.FirebaseStorage
 import com.trello.rxlifecycle2.android.ActivityEvent
 import com.trello.rxlifecycle2.components.RxActivity
 import com.uramonk.toiletune.BuildConfig
@@ -17,9 +20,7 @@ import com.uramonk.toiletune.R
 import com.uramonk.toiletune.UpdateReceiver
 import com.uramonk.toiletune.data.repository.*
 import com.uramonk.toiletune.domain.repository.*
-import com.uramonk.toiletune.domain.usecase.FetchConfig
-import com.uramonk.toiletune.domain.usecase.PlayMedia
-import com.uramonk.toiletune.domain.usecase.StopMedia
+import com.uramonk.toiletune.domain.usecase.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
@@ -34,6 +35,8 @@ class MainActivityViewModel(
      * Firebase
      */
     private lateinit var remoteConfig: FirebaseRemoteConfig
+    private lateinit var firestore: FirebaseFirestore
+    private lateinit var storage: FirebaseStorage
 
     /**
      * Repository
@@ -43,7 +46,9 @@ class MainActivityViewModel(
     private lateinit var mediaRepository: MediaRepository
     private lateinit var configRepository: ConfigRepository
     private lateinit var notificationRepository: NotificationRepository
-    private lateinit var authoRepository: AuthRepository
+    private lateinit var authRepository: AuthRepository
+    private lateinit var databaseRepository: DatabaseRepository
+    private lateinit var storageRepository: StorageRepository
 
     /**
      * UseCase
@@ -51,6 +56,8 @@ class MainActivityViewModel(
     private lateinit var fetchConfig: FetchConfig
     private lateinit var playMedia: PlayMedia
     private lateinit var stopMedia: StopMedia
+    private lateinit var fetchmediaPath: FetchMediaPath
+    private lateinit var downloadMedia: DownloadMedia
 
     override fun onCreate() {
         super.onCreate()
@@ -65,7 +72,7 @@ class MainActivityViewModel(
         createUseCase()
         executeUseCase()
 
-        authoRepository.showLogin()
+        authRepository.showLogin()
     }
 
     override fun onStop() {
@@ -96,6 +103,16 @@ class MainActivityViewModel(
             notificationManager.createNotificationChannel(NotificationChannel(channelId,
                     channelName, NotificationManager.IMPORTANCE_LOW))
         }
+
+        // FireStore
+        firestore = FirebaseFirestore.getInstance()
+        val settings = FirebaseFirestoreSettings.Builder()
+                .setTimestampsInSnapshotsEnabled(true)
+                .build()
+        firestore.firestoreSettings = settings
+
+        // Storage
+        storage = FirebaseStorage.getInstance()
     }
 
     private fun createReceiver() {
@@ -134,7 +151,9 @@ class MainActivityViewModel(
                 activity.getSystemService(SENSOR_SERVICE) as SensorManager)
         lightSensorRepository.start()
 
-        authoRepository = AuthDataRepository(activity)
+        authRepository = AuthDataRepository(activity)
+        databaseRepository = FirestoreDataRepository(firestore)
+        storageRepository = FireStorageDataRepository(storage, activity)
 
         activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         activity.window
@@ -148,6 +167,8 @@ class MainActivityViewModel(
         playMedia = PlayMedia(lightSensorRepository, playerRepository, mediaRepository,
                 configRepository)
         stopMedia = StopMedia(lightSensorRepository, playerRepository, configRepository)
+        fetchmediaPath = FetchMediaPath(databaseRepository)
+        downloadMedia = DownloadMedia(databaseRepository, storageRepository)
     }
 
     private fun executeUseCase() {
@@ -156,6 +177,10 @@ class MainActivityViewModel(
         playMedia.execute(Schedulers.newThread(), AndroidSchedulers.mainThread(),
                 activity.bindUntilEvent(ActivityEvent.STOP))
         stopMedia.execute(Schedulers.newThread(), AndroidSchedulers.mainThread(),
+                activity.bindUntilEvent(ActivityEvent.STOP))
+        fetchmediaPath.execute(Schedulers.newThread(), AndroidSchedulers.mainThread(),
+                activity.bindUntilEvent(ActivityEvent.STOP))
+        downloadMedia.execute(Schedulers.newThread(), AndroidSchedulers.mainThread(),
                 activity.bindUntilEvent(ActivityEvent.STOP))
     }
 }
