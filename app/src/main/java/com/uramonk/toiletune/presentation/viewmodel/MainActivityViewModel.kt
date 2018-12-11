@@ -2,8 +2,10 @@ package com.uramonk.toiletune.presentation.viewmodel
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Context
 import android.content.Context.SENSOR_SERVICE
 import android.content.IntentFilter
+import android.content.SharedPreferences
 import android.hardware.SensorManager
 import android.os.Build
 import android.view.View
@@ -56,8 +58,10 @@ class MainActivityViewModel(
     private lateinit var fetchConfig: FetchConfig
     private lateinit var playMedia: PlayMedia
     private lateinit var stopMedia: StopMedia
-    private lateinit var fetchmediaPath: FetchMediaPath
+    private lateinit var fetchMediaPath: FetchMediaPath
     private lateinit var downloadMedia: DownloadMedia
+
+    private lateinit var preferences: SharedPreferences
 
     override fun onCreate() {
         super.onCreate()
@@ -123,11 +127,13 @@ class MainActivityViewModel(
     }
 
     private fun createRepository() {
+        preferences = activity.getSharedPreferences("toiletune_data", Context.MODE_PRIVATE)
+
         // config
         configRepository = ConfigDataRepository(remoteConfig)
 
         // Media
-        mediaRepository = MediaDataRepository()
+        mediaRepository = MediaDataRepository(preferences)
 
         // Player
         playerRepository = PlayerDataRepository(activity)
@@ -153,8 +159,9 @@ class MainActivityViewModel(
         playMedia = PlayMedia(lightSensorRepository, playerRepository, mediaRepository,
                 configRepository)
         stopMedia = StopMedia(lightSensorRepository, playerRepository, configRepository)
-        fetchmediaPath = FetchMediaPath(databaseRepository)
-        downloadMedia = DownloadMedia(databaseRepository, storageRepository, mediaRepository)
+        fetchMediaPath = FetchMediaPath(databaseRepository)
+        downloadMedia = DownloadMedia(activity.filesDir.path, databaseRepository, storageRepository,
+                mediaRepository)
     }
 
     private fun executeUseCase() {
@@ -164,7 +171,7 @@ class MainActivityViewModel(
                 activity.bindUntilEvent(ActivityEvent.STOP))
         stopMedia.execute(Schedulers.newThread(), AndroidSchedulers.mainThread(),
                 activity.bindUntilEvent(ActivityEvent.STOP))
-        fetchmediaPath.execute(Schedulers.newThread(), AndroidSchedulers.mainThread(),
+        fetchMediaPath.execute(Schedulers.newThread(), AndroidSchedulers.mainThread(),
                 activity.bindUntilEvent(ActivityEvent.STOP))
         downloadMedia.execute(Schedulers.newThread(), AndroidSchedulers.mainThread(),
                 activity.bindUntilEvent(ActivityEvent.STOP))
