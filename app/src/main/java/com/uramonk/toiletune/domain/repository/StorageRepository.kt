@@ -9,5 +9,5 @@ import io.reactivex.Observable
 interface StorageRepository {
     val onDownloaded: Observable<List<MediaInfo>>
     fun downloads(list: List<MediaInfo>): Observable<List<MediaInfo>>
-    fun download(path: MediaInfo): Observable<MediaInfo>
+    fun download(mediaInfo: MediaInfo): Observable<MediaInfo>
 }

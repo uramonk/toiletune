@@ -30,15 +30,15 @@ class FireStorageDataRepository(
                 .doOnComplete { subject.onComplete() }
     }
 
-    override fun download(path: MediaInfo): Observable<MediaInfo> {
+    override fun download(mediaInfo: MediaInfo): Observable<MediaInfo> {
         return Observable.create<MediaInfo> { emitter ->
-            val gsReference = storage.getReferenceFromUrl(path.path)
-            val file = File(context.filesDir.path + "/" + File(path.path).name)
+            val gsReference = storage.getReferenceFromUrl(mediaInfo.path)
+            val file = File(context.filesDir.path + "/" + File(mediaInfo.path).name)
             Timber.d(file.absolutePath)
             gsReference.getFile(file).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Timber.d("Download completed.")
-                    emitter.onNext(MediaInfo(file.absolutePath, path.weight))
+                    emitter.onNext(MediaInfo(file.absolutePath, mediaInfo.weight))
                     emitter.onComplete()
                 } else {
                     Timber.e(task.exception, "Download failed.")

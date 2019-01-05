@@ -19,17 +19,20 @@ class DownloadMedia(
 ) : DefaultObservableUseCase<List<MediaInfo>>() {
     override val observable: Observable<List<MediaInfo>>
         get() = databaseRepository.onFetched
-                .flatMap { Observable.fromIterable(it) }
-                .concatMap { toLocalInfo(localDir, it) }
-                .toList()
-                .toObservable()
-                .filter { it != mediaRepository.mediaList }
-                .flatMap { storageRepository.downloads(it) }
+                .flatMap { checkDownloads(it) }
 
     override fun onNext(t: List<MediaInfo>) {
         Timber.d("Downloaded media list: %s", t)
         mediaRepository.mediaList = t
     }
+
+    private fun checkDownloads(list: List<MediaInfo>): Observable<List<MediaInfo>> =
+            Observable.fromIterable(list)
+                    .concatMap { toLocalInfo(localDir, it) }
+                    .toList()
+                    .toObservable()
+                    .filter { it != mediaRepository.mediaList }
+                    .flatMap { storageRepository.downloads(list) }
 
     private fun toLocalInfo(localDir: String, mediaInfo: MediaInfo): Observable<MediaInfo> =
             Observable.just(MediaInfo(localDir + "/" + File(mediaInfo.path).name,
